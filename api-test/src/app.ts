@@ -1,11 +1,55 @@
 import * as express from 'express'
-import { Application, Request, Response } from 'express'
+import * as cookieParser from 'cookie-parser'
 
-// Create a new express application instance
-const app: Application = express()
+// Initialize new express instance
+const app = express()
+app.use(cookieParser())
+app.use(express.json())
+// This middleware increments a visit counter cookie
+app.use((req, res, next) => {
+  const visits = +req.cookies.visitNumber || 0
+  res.cookie('visitNumber', visits + 1)
+  next()
+})
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!')
+interface IUser {
+  firstName: string
+  lastName: string
+  birth: number
+}
+
+function isUser(arg: any): arg is IUser {
+  return (
+    arg && arg.firstName && typeof arg.firstName == 'string' && arg.lastName && typeof arg.lastName == 'string' && arg.birth && typeof arg.birth == 'number'
+  )
+}
+
+// Poor man's in-memory DB ;-)
+const users: Array<IUser> = [
+  {
+    firstName: 'Kenneth',
+    lastName: 'Thompson',
+    birth: 1943,
+  },
+  {
+    firstName: 'Brian',
+    lastName: 'Kernighan',
+    birth: 1942,
+  },
+]
+
+app.get('/users', (_, res) => {
+  res.json(users)
+})
+
+app.post('/users', (req, res) => {
+  const user = req.body
+  if (isUser(user)) {
+    users.push(user)
+    res.json(user)
+  } else {
+    res.status(400).send()
+  }
 })
 
 app.listen(3000, () => {
