@@ -7,8 +7,9 @@ app.use(cookieParser())
 app.use(express.json())
 // This middleware increments a visit counter cookie
 app.use((req, res, next) => {
-  const visits = +req.cookies.visitNumber || 0
-  res.cookie('visitNumber', visits + 1)
+  const visits = (+req.cookies.visitNumber || 0) + 1
+  res.cookie('visitNumber', visits)
+  console.log(`This user has called the API ${visits} times`)
   next()
 })
 
