@@ -14,7 +14,7 @@ export const LOGIN_USER = gql`
 
 export default function Login() {
   const client: ApolloClient<any> = useApolloClient();
-  const [login, { data }] = useMutation<
+  const [login, { loading, error }] = useMutation<
     LoginTypes.login,
     LoginTypes.loginVariables
   >(LOGIN_USER, {
@@ -23,5 +23,9 @@ export default function Login() {
       client.writeData({ data: { isLoggedIn: true } });
     },
   });
+
+  if (loading) return <Loading />;
+  if (error) return <p>An error occurred</p>;
+
   return <LoginForm login={login} />;
 }
